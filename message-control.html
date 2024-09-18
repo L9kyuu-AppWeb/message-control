@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+    <style>
+        body {
+            @apply bg-gray-100 min-h-screen p-6;
+        }
+        .copy-notification {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto mt-8">
+    <!-- Container for the custom texts -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4" id="customTextsContainer"></div>
+
+    <!-- Form to add new text -->
+    <div class="mt-6 p-4 bg-white rounded-lg shadow-md">
+        <input type="text" id="newTitleInput" placeholder="Judul" class="block w-full p-2 mb-2 border border-gray-300 rounded">
+        <textarea id="newTextInput" style="height: 200px;" placeholder="Tambahkan teks baru (support emoji dan enter)" class="block w-full p-2 mb-2 border border-gray-300 rounded"></textarea>
+        
+        <div class="mb-2">
+            <label for="colorPicker" class="block text-gray-700 mb-1">Pilih Warna:</label>
+            <select id="colorPicker" class="block w-full p-2 border border-gray-300 rounded">
+                <option value="">tidak ada warna</option>
+                <option value="bg-yellow-100">Kuning</option>
+                <option value="bg-blue-100">Biru</option>
+                <option value="bg-green-100">Hijau</option>
+                <option value="bg-red-100">Merah</option>
+                <option value="bg-purple-100">Ungu</option>
+            </select>
+        </div>
+
+        <button id="addTextButton" class="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Simpan Perubahan</button>
+    </div>
+
+    <!-- Import/Export Buttons -->
+    <div class="flex justify-between mt-4">
+        <button id="exportButton" class="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">Ekspor Data</button>
+        <input type="file" id="importFile" class="hidden" accept=".json">
+        <label for="importFile" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">Impor Data</label>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="mt-10 text-center text-gray-600">
+    &copy; l9kyuu 2024
+</footer>
+
+<script>
+    const customTextsContainer = document.getElementById('customTextsContainer');
+    const newTitleInput = document.getElementById('newTitleInput');
+    const newTextInput = document.getElementById('newTextInput');
+    const addTextButton = document.getElementById('addTextButton');
+    const colorPicker = document.getElementById('colorPicker');
+    const exportButton = document.getElementById('exportButton');
+    const importFile = document.getElementById('importFile');
+    let editingIndex = null;
+
+    // Function to load custom texts from localStorage
+    function loadCustomTexts() {
+        const storedTexts = JSON.parse(localStorage.getItem('customTexts')) || [];
+        customTextsContainer.innerHTML = '';
+
+        storedTexts.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = `p-4 rounded-lg shadow-md ${item.color} relative mb-4`;
+
+            // Create the title div
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'font-bold text-lg cursor-pointer mb-2';
+            titleDiv.textContent = item.title;
+
+            // Create the content div (initially hidden)
+            const contentDiv = document.createElement('div');
+            contentDiv.textContent = item.text;
+            contentDiv.className = 'text-gray-700 mt-2 hidden';
+            contentDiv.style.whiteSpace = 'pre-wrap'; // Preserve line breaks
+
+            // Create button container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'mt-4 flex justify-start space-x-2';
+
+            // Copy button
+            const copyButton = document.createElement('button');
+            copyButton.className = 'text-blue-500 hover:text-blue-600 text-xl';
+            copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+            copyButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                copyText(item.text);
+            });
+
+            // Edit button
+            const editButton = document.createElement('button');
+            editButton.className = 'text-green-500 hover:text-green-600 text-xl';
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.addEventListener('click', () => editText(index));
+
+            // Delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'text-red-500 hover:text-red-600 text-xl';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.addEventListener('click', () => deleteText(index));
+
+            titleDiv.addEventListener('click', () => toggleContent(contentDiv));
+
+            // Append buttons to button container
+            buttonContainer.appendChild(copyButton);
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(deleteButton);
+
+            // Append elements to card
+            card.appendChild(titleDiv);
+            card.appendChild(contentDiv);
+            card.appendChild(buttonContainer);
+            customTextsContainer.appendChild(card);
+        });
+    }
+
+    // Toggle content visibility
+    function toggleContent(contentDiv) {
+        contentDiv.classList.toggle('hidden');
+    }
+
+    // Function to copy text to clipboard using SweetAlert2 for notification
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Teks berhasil disalin!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    // Add new text to localStorage
+    addTextButton.addEventListener('click', () => {
+        const newTitle = newTitleInput.value.trim();
+        const newText = newTextInput.value.trim();
+        const color = colorPicker.value;
+
+        if (newTitle && newText) {
+            const storedTexts = JSON.parse(localStorage.getItem('customTexts')) || [];
+            
+            if (editingIndex !== null) {
+                storedTexts[editingIndex] = { title: newTitle, text: newText, color };
+                editingIndex = null;
+            } else {
+                storedTexts.push({ title: newTitle, text: newText, color });
+            }
+            
+            localStorage.setItem('customTexts', JSON.stringify(storedTexts));
+            newTitleInput.value = '';
+            newTextInput.value = '';
+            colorPicker.value = '';
+            loadCustomTexts();
+        }
+    });
+
+    // Edit existing text
+    function editText(index) {
+        const storedTexts = JSON.parse(localStorage.getItem('customTexts')) || [];
+        const item = storedTexts[index];
+        newTitleInput.value = item.title;
+        newTextInput.value = item.text;
+        colorPicker.value = item.color;
+        editingIndex = index;
+    }
+
+    // Delete existing text
+    function deleteText(index) {
+        const storedTexts = JSON.parse(localStorage.getItem('customTexts')) || [];
+        storedTexts.splice(index, 1);
+        localStorage.setItem('customTexts', JSON.stringify(storedTexts));
+        loadCustomTexts();
+    }
+
+    // Export data to JSON file
+    exportButton.addEventListener('click', () => {
+        const storedTexts = JSON.parse(localStorage.getItem('customTexts')) || [];
+        const dataStr = JSON.stringify(storedTexts);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = 'data.json';
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    });
+
+    // Import data from JSON file
+    importFile.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const importedData = JSON.parse(e.target.result);
+                localStorage.setItem('customTexts', JSON.stringify(importedData));
+                loadCustomTexts();
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // Initial load of custom texts
+    loadCustomTexts();
+</script>
+</body>
+</html>
