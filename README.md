@@ -22,35 +22,67 @@ This is a simple web-based application that allows users to create, edit, and ma
    cd message-control-app
    Open the index.html file in your preferred browser to view and use the application.
 
-Dependencies
+# Message Control Application
+
+This is a web-based application that allows users to manage custom text notes with features like adding, editing, deleting, copying, exporting, and importing notes. The application is built using **Tailwind CSS** for styling and **SweetAlert2** for notifications.
+
+## Features
+
+- **Create Notes**: Add custom notes with titles and optional background colors.
+- **Copy Notes**: Copy the text of a note to the clipboard with a visual notification using SweetAlert2.
+- **Edit Notes**: Modify existing notes easily.
+- **Delete Notes**: Remove notes from the list.
+- **Export/Import Notes**: Save notes as a JSON file or import them back later.
+- **Responsive Design**: The interface adapts to different screen sizes for mobile and desktop.
+
+## Dependencies
+
 The application uses the following libraries and frameworks:
 
-Tailwind CSS: A utility-first CSS framework for styling.
-Font Awesome: For icons used in the user interface.
-SweetAlert2: For displaying notifications (e.g., when copying text).
-The necessary libraries are loaded from CDNs, so no additional installation is needed.
+- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for styling.
+- **[Font Awesome](https://fontawesome.com/)**: For icons used in the user interface.
+- **[SweetAlert2](https://sweetalert2.github.io/)**: For displaying notifications (e.g., when copying text).
 
-Usage
-Add a New Note
-Enter a title in the "Judul" field.
-Enter the content of your note in the text area.
-Optionally, select a background color from the dropdown menu.
-Click the "Simpan Perubahan" button to add the note.
-Copy a Note
-Click the copy icon next to a note.
-A notification will appear indicating that the text has been successfully copied to your clipboard.
-Edit a Note
-Click the edit icon next to the note you wish to modify.
-The note’s title and content will be loaded into the input fields.
-Make your changes and click "Simpan Perubahan" to save them.
-Delete a Note
-Click the trash icon next to the note you wish to delete.
-The note will be removed from the list.
-Export Notes
-Click the "Ekspor Data" button to download a JSON file containing all your notes.
-Import Notes
-Click the "Impor Data" button and select a JSON file containing previously exported notes.
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+All libraries are loaded from CDNs, so no additional installation is required.
 
-© l9kyuu 2024
+## Usage
+
+### Add a New Note
+
+1. Enter a title in the "Judul" field.
+2. Enter the content of your note in the text area.
+3. Optionally, select a background color from the dropdown menu.
+4. Click the "Simpan Perubahan" button to add the note.
+
+### Copy a Note
+
+1. Click the copy icon (`📋`) next to a note.
+2. A SweetAlert2 notification will appear, indicating that the text has been successfully copied to your clipboard.
+
+### Edit a Note
+
+1. Click the edit icon (`✏️`) next to the note you wish to modify.
+2. The note’s title and content will be loaded into the input fields.
+3. Make your changes and click "Simpan Perubahan" to save them.
+
+### Delete a Note
+
+1. Click the trash icon (`🗑️`) next to the note you wish to delete.
+2. The note will be permanently removed.
+
+### Export Notes
+
+1. Click the "Ekspor Data" button to download a JSON file containing all your notes.
+
+### Import Notes
+
+1. Click the "Impor Data" button and select a JSON file to import your notes back into the application.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+&copy; l9kyuu 2024
+
